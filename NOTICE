@@ -1,0 +1,23 @@
+mlx-swift-image-edit
+====================
+
+This package's own source is licensed under the MIT License (see LICENSE).
+
+Third-party source included in this repository
+-----------------------------------------------
+Sources/MLXImageEdit/StableDiffusion/*  is vendored from
+  ml-explore/mlx-swift-examples @ 9bff95ca (tag 2.29.1), MIT License.
+  See Sources/MLXImageEdit/StableDiffusion/VENDORED_FROM.txt.
+
+Model weights fetched at runtime (NOT included in this repository)
+------------------------------------------------------------------
+This package loads InstructPix2Pix weights published at
+  https://huggingface.co/timbrooks/instruct-pix2pix
+which are distributed under the CreativeML OpenRAIL-M license. Commercial use
+is permitted subject to the license's use-based restrictions (Attachment A).
+Downloading and using these weights constitutes acceptance of that license.
+The weights are the property of their respective authors; this package does
+not redistribute them and asserts no rights over them.
+
+CreativeML OpenRAIL-M: https://huggingface.co/timbrooks/instruct-pix2pix (see LICENSE on the model card)
+InstructPix2Pix: Brooks, Holynski, Efros (2023).
