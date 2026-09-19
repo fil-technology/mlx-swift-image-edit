@@ -21,3 +21,20 @@ not redistribute them and asserts no rights over them.
 
 CreativeML OpenRAIL-M: https://huggingface.co/timbrooks/instruct-pix2pix (see LICENSE on the model card)
 InstructPix2Pix: Brooks, Holynski, Efros (2023).
+
+--- Added in v0.2.0 (PhotoMaker v1 identity-preserving edit) ---
+
+PhotoMaker v1 (ID encoder + UNet LoRA), loaded at runtime from converted weights of
+  https://huggingface.co/TencentARC/PhotoMaker  (photomaker-v1.bin)
+  License: Apache-2.0 (code); the ID encoder is a CLIP ViT-L/14 (OpenAI CLIP). No InsightFace.
+
+SDXL base 1.0 (identity edit base model):
+  https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0
+  License: CreativeML OpenRAIL++-M (commercial use permitted with use-based restrictions).
+
+Optional 3D-render style preset (independent, swappable LoRA — NOT hardcoded):
+  https://huggingface.co/goofyai/3d_render_style_xl
+  License: Apache-2.0. Generic "3D render" style (not a studio-branded style). Trigger: "3d render".
+
+Compact LoRA folding is performed natively in Swift at load time; no Python/diffusers is required at runtime.
+Weights are read from a caller-staged local HubApi layout; this package does not redistribute them.

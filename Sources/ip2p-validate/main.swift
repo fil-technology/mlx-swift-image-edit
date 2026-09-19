@@ -74,7 +74,49 @@ if a.count >= 2, a[1] == "selftest" {
     exit(fail == 0 ? 0 : 1)
 }
 
-guard a.count >= 4 else { print("usage: ip2p-validate <hubBase> <outDir> <img::prompt::name> ...  |  selftest"); exit(2) }
+// PhotoMaker v1 ID-encoder numeric parity check against reference goldens.
+if a.count >= 4, a[1] == "pm-idcheck" {
+    do {
+        let report = try photoMakerIDEncoderParityCheck(idEncoderPath: a[2], goldenPath: a[3])
+        print("PM_IDCHECK \(report)")
+        exit(0)
+    } catch { print("PM_IDCHECK_ERR \(error)"); exit(1) }
+}
+
+// PhotoMaker v1 end-to-end validation gate: <hub> <idEnc> <lora> <face> <outDir> <seedsCSV>
+if a.count >= 8, a[1] == "pm-gate" {
+    let seeds = a[7].split(separator: ",").compactMap { UInt64($0) }
+    let env = ProcessInfo.processInfo.environment
+    let steps = env["PM_STEPS"].flatMap { Int($0) } ?? 40
+    let size = env["PM_SIZE"].flatMap { Int($0) } ?? 1024
+    let startMerge = env["PM_STARTMERGE"].flatMap { Int($0) } ?? 10
+    let guidance = env["PM_GUIDANCE"].flatMap { Float($0) } ?? 5.0
+    let prompt = env["PM_PROMPT"] ?? "a woman img transformed into a high-quality 3D animated film character, pixar style, preserving recognizable facial identity, same hairstyle, same smiling expression, same pose and composition, soft cinematic lighting, highly detailed"
+    let neg = env["PM_NEG"] ?? "photorealistic, realistic photo, blurry, deformed, low quality, grayscale, extra fingers"
+    let styleDelta = env["PM_STYLE_DELTA"]
+    let styleScale = env["PM_STYLE_SCALE"].flatMap { Float($0) } ?? 1.0
+    FileHandle.standardError.write("SETTINGS steps=\(steps) size=\(size) startMerge=\(startMerge) guidance=\(guidance) style=\(styleDelta ?? "none")@\(styleScale)\n".data(using: .utf8)!)
+    do {
+        let report = try photoMakerRunGate(
+            hubBase: a[2], idEncoderPath: a[3], loraPath: a[4], facePath: a[5], outDir: a[6],
+            prompt: prompt, negativePrompt: neg, seeds: seeds, steps: steps, startMergeStep: startMerge,
+            guidanceScale: guidance, size: size, styleLoraPath: styleDelta, styleScale: styleScale)
+        print("PM_GATE\n\(report)")
+        exit(0)
+    } catch { print("PM_GATE_ERR \(error)"); exit(1) }
+}
+
+// PhotoMaker v1 SDXL conditioning parity check.
+if a.count >= 6, a[1] == "pm-condcheck" {
+    do {
+        let report = try photoMakerConditioningParityCheck(
+            hubBase: a[2], idEncoderPath: a[3], loraPath: a[4], goldenPath: a[5])
+        print("PM_CONDCHECK \(report)")
+        exit(0)
+    } catch { print("PM_CONDCHECK_ERR \(error)"); exit(1) }
+}
+
+guard a.count >= 4 else { print("usage: ip2p-validate <hubBase> <outDir> <img::prompt::name> ...  |  selftest  |  pm-idcheck <idEnc> <golden>  |  pm-condcheck <hub> <idEnc> <lora> <golden>"); exit(2) }
 let hubBase = URL(fileURLWithPath: a[1]); let outDir = a[2]
 try? FileManager.default.createDirectory(atPath: outDir, withIntermediateDirectories: true)
 struct Job { let img: String, prompt: String, name: String }
