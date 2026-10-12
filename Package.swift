@@ -5,8 +5,11 @@ let package = Package(
     platforms: [.macOS(.v14), .iOS(.v16)],
     products: [ .library(name: "MLXImageEdit", targets: ["MLXImageEdit"]) ],
     dependencies: [
-        .package(url: "https://github.com/ml-explore/mlx-swift", .upToNextMinor(from: "0.29.1")),
-        .package(url: "https://github.com/huggingface/swift-transformers", .upToNextMinor(from: "1.0.0")),
+        // Accepts 0.31.6 through 0.32.x: the sources build against mlx-swift 0.32.3 (the floor set by
+        // mlx-swift-lm 3.31.4 in the esh graph). An explicit range avoids needing a SwiftPM path override
+        // just to clear an over-tight upper bound.
+        .package(url: "https://github.com/ml-explore/mlx-swift", "0.31.6" ..< "0.33.0"),
+        .package(url: "https://github.com/huggingface/swift-transformers", .upToNextMajor(from: "1.3.0")),
     ],
     targets: [
         .target(name: "MLXImageEdit", dependencies: [
